@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const { Usuario } = require('../models/usuario');
-const { Categoria } = require('../models/categoria');
-const { Producto } = require('../models/producto');
+const { Usuario } = require('../models/Usuario');
+const { Categoria } = require('../models/Categoria');
+const { Producto } = require('../models/Producto');
 const { Subasta } = require('../models/Subasta');
 const { Puja } = require('../models/Puja');
 const { Venta } = require('../models/Venta');
