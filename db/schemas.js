@@ -86,6 +86,7 @@ const typeDefs = gql`
         estado: EstadoUsuario!
         reputacion: Float
         wallet: Wallet!
+        imageUrl: String
         fechaRegistro: String
     }
 
@@ -323,6 +324,7 @@ const typeDefs = gql`
         nombre: String
         telefono: String
         direccion: DireccionInput
+        imageUrl: String
     }
 
     input DireccionInput {
@@ -344,6 +346,14 @@ const typeDefs = gql`
         telefono: String
         direccion: DireccionInput
         estado: EstadoUsuario
+        imageUrl: String
+    }
+    
+    input GoogleAuthInput {
+        email: String!
+        nombre: String!
+        googleId: String!
+        imageUrl: String
     }
     
 # Categoria    
@@ -474,6 +484,7 @@ const typeDefs = gql`
         nuevoUsuario(input: UsuarioInput!): Usuario
         autenticarUsuario(input: AutenticarInput!): Token
         actualizarUsuario(id: ID!, input: ActualizarUsuarioInput!): Usuario
+        loginConGoogle(input: GoogleAuthInput!): Token
         
         "Mutations de Wallet"
         depositarSaldo(monto: Float!): Usuario

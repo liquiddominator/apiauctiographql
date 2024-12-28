@@ -29,7 +29,7 @@ const servidor= new ApolloServer({
                 console.log('Token invalido')
             }
         }
-}
+    }
 });
 
 //Levantamos el servidor

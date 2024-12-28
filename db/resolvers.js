@@ -673,7 +673,7 @@ const resolvers = {
 
     Mutation: {
         nuevoUsuario: async (_, { input }) => {
-            const { email, username, password } = input;
+            const { email, username, password, imageUrl } = input;
 
             const existeUsuario = await Usuario.findOne({
                 $or: [{ email }, { username }]
@@ -692,6 +692,9 @@ const resolvers = {
                 saldoBloqueado: new mongoose.Types.Decimal128('0')
             };
             input.fechaRegistro = new Date();
+
+            // Usar la imagen proporcionada o la imagen por defecto
+            input.imageUrl = imageUrl || process.env.DEFAULT_USER_IMAGE;
 
             try {
                 const usuario = new Usuario(input);
@@ -764,6 +767,55 @@ const resolvers = {
                     { new: true }
                 );
                 return transformarUsuario(usuario);
+            } catch (error) {
+                throw new Error(error.message);
+            }
+        },
+
+        loginConGoogle: async (_, { input }) => {
+            const { email, nombre, googleId, imageUrl } = input;
+
+            try {
+                // Buscar si el usuario ya existe por email
+                let usuario = await Usuario.findOne({ email });
+
+                if (!usuario) {
+                    // Si no existe, crear nuevo usuario
+                    const nuevoUsuario = new Usuario({
+                        email,
+                        nombre,
+                        username: email.split('@')[0], // Crear username basado en el email
+                        password: await bcrypt.hash(googleId + process.env.FIRMA_SECRETA, 10),
+                        estado: 'activo',
+                        imageUrl, // Siempre usar la imagen de Google
+                        wallet: {
+                            saldo: new mongoose.Types.Decimal128('0'),
+                            saldoBloqueado: new mongoose.Types.Decimal128('0')
+                        }
+                    });
+
+                    usuario = await nuevoUsuario.save();
+                } else {
+                    // Si existe, actualizar siempre con la nueva imagen de Google
+                    usuario = await Usuario.findOneAndUpdate(
+                        { _id: usuario.id },
+                        {
+                            imageUrl,  // Actualizar siempre a la última imagen de Google
+                            nombre: nombre || usuario.nombre // Actualizar nombre si viene uno nuevo
+                        },
+                        { new: true }
+                    );
+
+                    // Verificar si el usuario está activo
+                    if (usuario.estado !== 'activo') {
+                        throw new Error('Usuario no activo');
+                    }
+                }
+
+                // Retornar el token JWT
+                return {
+                    token: crearToken(usuario, process.env.FIRMA_SECRETA, '24h')
+                };
             } catch (error) {
                 throw new Error(error.message);
             }

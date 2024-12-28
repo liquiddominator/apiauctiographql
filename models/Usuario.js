@@ -39,6 +39,10 @@ const UsuarioSchema = mongoose.Schema({
         saldo: mongoose.Types.Decimal128,
         saldoBloqueado: mongoose.Types.Decimal128
     },
+    imageUrl: {
+        type: String,
+        default: null
+    },
     fechaRegistro: {
         type: Date,
         default: Date.now
